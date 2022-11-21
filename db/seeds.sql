@@ -1,9 +1,11 @@
--- INSERT INTO movies (movie_name)
--- VALUES ("Lion King"),
---        ("The Godfather"),
---        ("West Side Story"),
---        ("Parasite"),
---        ("The Wizard of Oz");
+-- Inserting department names into department table
+INSERT INTO department (name)
+VALUES ("Sales"),
+       ("Finance"),
+       ("Legal"),
+       ("IT"),
+       ("Operations"),
+       ("HR");
 
 -- INSERT INTO reviews (movie_id, review)
 -- VALUES (1, "Zazu is underrated. Give that hornbill a sequel!"),

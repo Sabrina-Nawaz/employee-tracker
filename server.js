@@ -93,6 +93,10 @@ const viewEmployees = () => {
         menuQuestions();
     })
 }
+
+const departmentAdd = () => {
+    
+}
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
