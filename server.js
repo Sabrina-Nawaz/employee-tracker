@@ -31,21 +31,45 @@ const menuQuestions = () => {
     return inquirer.prompt([
         {
             type: 'list',
-            message: "Please select an option",
-            name: 'selection',
+            message: 'Please select an option',
+            name: 'options',
             choices: [
-                "View all departments",
-                "View all roles",
-                "View all employees",
-                "Add a department",
-                "Add a role",
-                "Add an employee",
-                "Update an employee role"
+                'View all departments',
+                'View all roles',
+                'View all employees',
+                'Add a department',
+                'Add a role',
+                'Add an employee',
+                'Update an employee role'
             ]
         }
     ])
+    .then((data) => {
+        switch(data.options) {
+            case 'View all departments':
+                viewDepartments();
+                break;
+            case 'View all roles':
+                viewRoles();
+                break;
+            case 'View all employees':
+                viewEmployees();
+                break;
+            case 'Add a department':
+                departmentAdd();
+                break;
+            case 'Add an employee':
+                employeeAdd();
+                break;
+            case "Update an employee role":
+                updateRole();
+                break;
+        }
+    })
+};
 
-}
+menuQuestions();
+
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
