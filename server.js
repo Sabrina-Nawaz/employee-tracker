@@ -71,7 +71,27 @@ const menuQuestions = () => {
 menuQuestions();
 
 const viewDepartments = () => {
-    db.query
+    db.query(`SELECT * FROM department`, function (err, results) {
+        console.log(`\n`);
+        console.table(results);
+        menuQuestions();
+    })
+}
+
+const viewRoles = () => {
+    db.query(`SELECT * FROM role`, function (err, results){
+        console.log(`\n`);
+        console.table(results);
+        menuQuestions();
+    })
+}
+
+const viewEmployees = () => {
+    db.query(`SELECT `, function (err, results){
+        console.log(`\n`);
+        console.table(results);
+        menuQuestions();
+    })
 }
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
