@@ -70,6 +70,9 @@ const menuQuestions = () => {
 
 menuQuestions();
 
+const viewDepartments = () => {
+    db.query
+}
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
