@@ -1,18 +1,12 @@
-const express = require('express');
 // Import and require mysql2
 const mysql = require('mysql2');
 // Require console.table.package to print MySQL rows 
-const cTable = require('console.table');
+ require('console.table');
 //Require inquirer to prompt user questions
 const inquirer = require('inquirer');
 
 //Set up PORT
-const PORT = process.env.PORT || 3001;
-const app = express();
 
-// Express middleware
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
 
 // Connect to database
 const db = mysql.createConnection(
@@ -71,8 +65,10 @@ const menuQuestions = () => {
 menuQuestions();
 
 const viewDepartments = () => {
-    db.query(`SELECT * FROM department`, function (err, results) {
+    console.log('starting the departments query')
+    db.query(`SELECT * FROM department;`, function (err, results) {
         console.log(`\n`);
+        console.log(results)
         console.table(results);
         menuQuestions();
     })
@@ -95,8 +91,6 @@ const viewEmployees = () => {
 }
 
 const departmentAdd = () => {
-    
-}
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+
+};
+
