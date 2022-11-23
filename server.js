@@ -34,7 +34,9 @@ const menuQuestions = () => {
                 'Add a department',
                 'Add a role',
                 'Add an employee',
-                'Update an employee role'
+                'Update an employee role',
+                'Delete an employee',
+                'Delete all employees'
             ]
         }
     ])
@@ -60,6 +62,12 @@ const menuQuestions = () => {
                     break;
                 case "Update an employee role":
                     updateRole();
+                    break;
+                case "Delete an employee":
+                    deleteEmployee();
+                    break;
+                case "Delete all employees":
+                    deleteAllEmployees();
                     break;
             }
         })
@@ -134,15 +142,24 @@ const roleAdd = () => {
             {
                 type: 'input',
                 message: "Which department does this role belong to?",
-                name: deptArr
+                name: 'department'
             }
 
         ])
             .then((data => {
                 //Retrieve the dept ID
-                db.query(`SELECT id FROM department WHERE department.name = ?`, data.department, (err, results) => {
-                    let department_id = results[0].id; // Bug with this function, can't read 
-                    db.query(`INSERT INTO role(title, salary, department_id) VALUES (?,?,?)`, [data.title, data.salary, department_id], (err, results) => {
+                console.log(data)
+                const departmentName = data.department;
+                const salary = data.salary;
+                const role = data.role;
+                db.query(`SELECT id FROM department WHERE department.name = '${departmentName}'`, (err, results) => {
+                    console.log(err, results)
+                    const departmentId = results?.[0]?.id
+                    if (!departmentId) {
+                        console.log('There is no department found for ', departmentName)
+                        return
+                    }
+                    db.query(`INSERT INTO role(title, salary, department_id) VALUES (?,?,?)`, [role, salary, departmentId], (err, results) => {
                         console.log("\nNew role added:");
                         viewRoles();
                     })
@@ -157,7 +174,7 @@ const employeeAdd = () => {
     // Grabs all the roles in the role array
     db.query(`SELECT * FROM role`, function (err, results) {
         for (let i = 0; i < results.length; i++) {
-            roleArr.push(results[i].role);
+            roleArr.push(results[i].title);
         }
         // Grabs all employees in the employee array
         db.query(`SELECT * from employee`, function (err, results) {
@@ -189,61 +206,99 @@ const employeeAdd = () => {
                     choices: roleArr
                 }
             ]).then((data) => {
-                let roleTitle = data.role;
+                let roleTitle = data.empRole;
                 let first_name = data.first_name;
                 let last_name = data.last_name;
                 let role_id = '';
                 let employeeManager = '';
                 // Grabs the role id 
-                db.query(`SELECT id FROM role WHERE role.title = ?`, data.role, (err, results) => {
+                db.query(`SELECT id FROM role WHERE role.title = ?`, data.empRole, (err, results) => {
                     role_id = results[0].id;
-                });
-                if (data.empManager === "Yes") {
-                    return inquirer.prompt([
-                        {
-                            type: 'list',
-                            message: "Please select the employees manager",
-                            name: 'employeeManager',
-                            choices: employeeArr
-                        }
-                    ]).then((data) => {
-                        // Grabs role ID
-                        db.query(`SELECT id FROM role WHERE role role.title = ?`, roleTitle, (err, results) => {
-                            role_id = results[0].id;
+                    if (data.empManager === "Yes") {
+                        return inquirer.prompt([
+                            {
+                                type: 'list',
+                                message: "Please select the employees manager",
+                                name: 'employeeManager',
+                                choices: employeeArr
+                            }
+                        ]).then((data) => {
+                            // Grabs role ID
+                            db.query(`SELECT id FROM role WHERE role role.title = ?`, roleTitle, (err, results) => {
+                                role_id = results[0].id;
+                            })
+                            db.query(`SELECT id FROM employee WHERE employee.first_name = ? AND employee.last_name = ?;`, data.employeeManager.split(" "), (err, results) => {
+                                employeeManager = results[0].id;
+                                db.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)`, [first_name, last_name, role_id, employeeManager], (err, results) => {
+                                    console.log("\nNew employee added:");
+                                    viewEmployees();
+                                })
+                            })
                         })
-                        db.query(`SELECT id FROM employee WHERE employee.first_name = ? AND employee.last_name = ?;`, data.employeeManager.split(" "), (err, results) => {
-                            employeeManager = results[0].id;
-                            db.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)`, [first_name, last_name, role_id, employeeManager], (err, results) => {
-                                console.log("\nNew employee added:");
+                    } else {
+                        employeeManager = null;
+                        // grabs role ID
+                        db.query(`SELECT id FROM role WHERE role.title = ?`, roleTitle, (err, results) => {
+                            role_id = results[0].id;
+                            db.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)`, [data.first_name, data.last_name, role_id, employeeManager], (err, results) => {
+                                console.log("\nNew employee added:")
                                 viewEmployees();
                             })
                         })
-                    })
-                } else {
-                    employeeManager = null;
-                // grabs role ID
-                db.query(`SELECT id FROM role WHERE role.title = ?`, roleTitle, (err, results) => {
-                    role_id = results[0].id;
-                    db.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)`, [data.first_name, data.last_name, role_id, employeeManager], (err, results) => {
-                        console.log("\nNew employee added:")
-                        viewEmployees();
-                    })
-                } )
-                }
-            }) 
+                    }
+                });
+
+            })
         })
     })
 }
-
+// Function to update employee role 
 const updateRole = () => {
     const roleArr = [];
     const employeeArr = [];
     //Grabs all roles in the role array
     db.query(`SELECT * FROM role`, function (err, results) {
         for (let i = 0; i < results.length; i++) {
-            roleArr.push(results[i].role);
+            roleArr.push(results[i].title);
         }
-    // Grabs all employees from employee array
+        // Grabs all employees from employee array
+        db.query(`SELECT * FROM employee`, function (err, results) {
+            for (let i = 0; i < results.length; i++) {
+                let empName = `${results[i].first_name} ${results[i].last_name}`
+                employeeArr.push(empName);
+            }
+            return inquirer.prompt([
+                {
+                    type: 'list',
+                    message: "Choose an employee to update",
+                    name: "updateEmployee",
+                    choices: employeeArr
+                },
+                {
+                    type: 'list',
+                    message: "What new role is assigned to this employee?",
+                    name: 'newRole',
+                    choices: roleArr
+                },
+            ]).then((data) => {
+                db.query(`SELECT id FROM role WHERE role.title = ?`, data.newRole, (err, results) => {
+                    role_id = results[0].id;
+                    db.query(`SELECT id FROM employee WHERE employee.first_name = ? AND employee.last_name = ?;`, data.updateEmployee.split(" "), (err, employeeResults) => {
+                        db.query(`UPDATE employee SET role_id = ? WHERE id = ?;`, [role_id, employeeResults[0].id], () => {
+                            console.log("\nEmployee role has been updated:");
+                            viewEmployees();
+                        })
+                    })
+                })
+            })
+        })
+    })
+
+}
+// Function to delete an employee
+const deleteEmployee = () => {
+    //Grabs all employees from employee array
+    const employeeArr = [];
     db.query(`SELECT * FROM employee`, function (err, results) {
         for (let i = 0; i < results.length; i++) {
             let empName = `${results[i].first_name} ${results[i].last_name}`
@@ -255,26 +310,15 @@ const updateRole = () => {
                 message: "Choose an employee to update",
                 name: "updateEmployee",
                 choices: employeeArr
-            },
-            {
-                type: 'list',
-                message: "What new role is assigned to this employee?",
-                name: 'newRole',
-                choices: roleArr
-            },
+            }
         ]).then((data) => {
-            db.query(`SELECT id FROM role WHERE role.title = ?`, data.role, (err, results) => {
-                role_id = results[0].id;
-                db.query(`SELECT id FROM employee WHERE employee.first_name = ? AND employee.last_name = ?;`, data.updateEmployee.split(" ", (err, results) => {
-                    db.query(`UPDATE employee SET role_id = ? WHERE id = ?;`, [role_id, results[0].id], (err, results) => {
-                        console.log("\nEmployee role has been updated:");
-                        viewEmployees();
-                    })
-                }))
-            })
-        })
-    })
-    })
+            db.query(`DELETE FROM employee WHERE employee.first_name = ? AND employee.last_name = ?;`, data.updateEmployee.split(" "), viewEmployees)
 
+         })
+    })
 }
-
+// Function to delete ALL employees
+const deleteAllEmployees = () => {
+    //Grabs all employees from employee array
+    db.query(`DELETE FROM employee WHERE employee.id IS NOT NULL`)
+};

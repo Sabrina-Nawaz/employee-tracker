@@ -22,7 +22,7 @@ VALUES ("Goku", "Son", 1, null),
     ("Trunks", "Enchanto", 3, 3),
     ("Gohan", "Son", 1, 1),
     ("Videl", "Bideru", 4, 5),
-    ("Bulma", "Enchanto", 4, null);
+    ("Bulma", "Briefs", 4, null);
 
 -- Creates a new view, or replaces an existing view if the OR REPLACE clause is given. If the view does not exist, CREATE OR REPLACE VIEW is the same as CREATE VIEW
 CREATE VIEW employee_data AS
@@ -43,12 +43,4 @@ staff.role_id,
 CONCAT(manager.first_name, ' ', manager.last_name) AS manager_name
 FROM employee AS manager RIGHT OUTER JOIN employee AS staff ON manager.id = staff.manager_id);
     
--- INSERT INTO reviews (movie_id, review)
--- VALUES (1, "Zazu is underrated. Give that hornbill a sequel!"),
---        (2, "I'm gonna make him an offer you can't refuse, watch this movie"),
---        (1, "Scar is the lion everyone loves to hate"),
---        (3, "Ten years of ballet and three years of tap to join a gang in this neighborhood"),
---        (5, "The tin man gave a metallic, hollow performance"),
---        (1, "Hakuna matata"),
---        (5, "Those flying monkeys are nightmare fuel!");
        
