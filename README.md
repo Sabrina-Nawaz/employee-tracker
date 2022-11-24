@@ -23,7 +23,7 @@
 
   To use the program, you need to run the `npm i` or `npm install` command in the terminal to download all dependencies. Then you need go to the 'db' folder and log into mysql using the schema.sql and seeds.sql. To start the application, you need to return to the root folder and enter `node server.js`.
 
-
+[Employee-Tracker Demo.webm](https://user-images.githubusercontent.com/61954667/203680868-aef7892c-5205-4193-8d43-4a816e1d811c.webm)
 
 ## License
 Copyright <2022 Sabrina Nawaz> <COPYRIGHT>
