@@ -224,7 +224,9 @@ const employeeAdd = () => {
                             }
                         ]).then((data) => {
                             // Grabs role ID
-                            db.query(`SELECT id FROM role WHERE role role.title = ?`, roleTitle, (err, results) => {
+                            console.log(roleTitle)
+                            db.query(`SELECT id FROM role WHERE role.title = ?`, roleTitle, (err, results) => {
+                                console.log(results)
                                 role_id = results[0].id;
                             })
                             db.query(`SELECT id FROM employee WHERE employee.first_name = ? AND employee.last_name = ?;`, data.employeeManager.split(" "), (err, results) => {
